@@ -113,9 +113,11 @@ export default function Web3Provider ({ children }) {
       return false
     }
     const { data } = await axios(`/api/addresses?network=${networkName}`)
-    const marketplaceContract = new ethers.Contract(data.marketplaceAddress, Market.abi, signer)
+    // const marketplaceContract = new ethers.Contract(data.marketplaceAddress, Market.abi, signer)
+    const marketplaceContract = new ethers.Contract(process.env.marketplaceaddress,Marketplace.abi,signer)
     setMarketplaceContract(marketplaceContract)
-    const nftContract = new ethers.Contract(data.nftAddress, NFT.abi, signer)
+    // const nftContract = new ethers.Contract(data.nftAddress, NFT.abi, signer)
+    const nftContract = new ethers.Contract(process.env.nftaddress, NFT.abi,signer)
     setNFTContract(nftContract)
     return true
   }

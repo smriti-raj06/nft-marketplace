@@ -1,4 +1,5 @@
 import { Paper, Typography } from '@mui/material'
+import Link from "next/link"
 
 export default function LowOnBalanceTip () {
   return (
@@ -8,9 +9,11 @@ export default function LowOnBalanceTip () {
       sx={{
         p: '5px 15px'
       }}>
-      <Typography variant="body2" color="text.secondary">
-        Low on MATIC? Use this <a href='https://faucet.polygon.technology/' target="_blank ">faucet</a> to get free test tokens!
-      </Typography>
+      {/* <Typography variant="body2" color="text.secondary">
+        Low on MATIC? Use this 
+        <Link href='https://cloud.google.com/application/web3/faucet/ethereum/sepolia' target="_blank ">faucet</Link> 
+        to get free test tokens!
+      </Typography> */}
     </Paper>
   )
 }
