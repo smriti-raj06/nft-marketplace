@@ -9,6 +9,7 @@ const webArMetadataUrl = 'https://ipfs.io/ipfs/QmSzFfx3rNqdJwSsrFpfMcxZCncaATsCc
 
 async function getMintedTokenId (transaction) {
   const transactionResult = await transaction.wait()
+  await delay(500);
   const event = transactionResult.events[0]
   const value = event.args[2]
   return value.toNumber()
@@ -16,9 +17,14 @@ async function getMintedTokenId (transaction) {
 
 async function getCreatedMarketItemId (transaction) {
   const transactionResult = await transaction.wait()
+  await delay(500);
   const marketItemEvent = transactionResult.events.find(event => event.args)
   const value = marketItemEvent.args[0]
   return value.toNumber()
+}
+
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 async function setupMarket (marketplaceAddress, nftAddress) {
@@ -26,6 +32,7 @@ async function setupMarket (marketplaceAddress, nftAddress) {
   marketplaceAddress = marketplaceAddress || process.env[`MARKETPLACE_CONTRACT_ADDRESS_${networkName}`]
   nftAddress = nftAddress || process.env[`NFT_CONTRACT_ADDRESS_${networkName}`]
 
+  console.log('marketplace_address: ', marketplaceAddress);
   const marketplaceContract = await hre.ethers.getContractAt('Marketplace', marketplaceAddress)
   const nftContract = await hre.ethers.getContractAt('NFT', nftAddress)
   const nftContractAddress = nftContract.address
@@ -43,13 +50,19 @@ async function setupMarket (marketplaceAddress, nftAddress) {
   const webArMintTx = await nftContract.mintToken(webArMetadataUrl)
   const webArTokenId = await getMintedTokenId(webArMintTx)
   await marketplaceContract.createMarketItem(nftContractAddress, dogsTokenId, price, { value: listingFee })
+  await delay(500);
   await marketplaceContract.createMarketItem(nftContractAddress, techEventTokenId, price, { value: listingFee })
+  await delay(500);
   const codeconMarketTx = await marketplaceContract.createMarketItem(nftContractAddress, codeconTokenId, price, { value: listingFee })
+  await delay(500);
   const codeconMarketItemId = await getCreatedMarketItemId(codeconMarketTx)
+  await delay(500);
   await marketplaceContract.createMarketItem(nftContractAddress, webArTokenId, price, { value: listingFee })
+  await delay(500);
   console.log(`${acc1.address} minted tokens ${dogsTokenId}, ${techEventTokenId}, ${codeconTokenId} and ${webArTokenId} and listed them as market items`)
 
   await marketplaceContract.cancelMarketItem(nftContractAddress, codeconMarketItemId)
+  await delay(500);
   console.log(`${acc1.address} canceled market item for token ${codeconTokenId}`)
 
   const yellowMintTx = await nftContract.connect(acc2).mintToken(yellowCrownMetadataUrl)
@@ -57,21 +70,30 @@ async function setupMarket (marketplaceAddress, nftAddress) {
   const ashleyMintTx = await nftContract.connect(acc2).mintToken(ashleyMetadataUrl)
   const ashleyTokenId = await getMintedTokenId(ashleyMintTx)
   await marketplaceContract.connect(acc2).createMarketItem(nftContractAddress, yellowTokenId, price, { value: listingFee })
+  await delay(500);
   await marketplaceContract.connect(acc2).createMarketItem(nftContractAddress, ashleyTokenId, price, { value: listingFee })
+  await delay(500);
   console.log(`${acc2.address} minted tokens ${yellowTokenId} and ${ashleyTokenId} and listed them as market items`)
 
   await marketplaceContract.createMarketSale(nftContractAddress, yellowTokenId, { value: price })
+  await delay(500);
   console.log(`${acc1.address} bought token ${yellowTokenId}`)
   await nftContract.approve(marketplaceContract.address, yellowTokenId)
+  await delay(500);
   await marketplaceContract.createMarketItem(nftContractAddress, yellowTokenId, price, { value: listingFee })
+  await delay(500);
   console.log(`${acc1.address} put token ${yellowTokenId} for sale`)
 
   await marketplaceContract.connect(acc2).createMarketSale(nftContractAddress, dogsTokenId, { value: price })
+  await delay(500);
   await nftContract.connect(acc2).approve(marketplaceContract.address, dogsTokenId)
+  await delay(500);
   await marketplaceContract.connect(acc2).createMarketItem(nftContractAddress, dogsTokenId, price, { value: listingFee })
+  await delay(500);
   console.log(`${acc2.address} bought token ${dogsTokenId} and put it for sale`)
 
   await marketplaceContract.connect(acc2).createMarketSale(nftContractAddress, webArTokenId, { value: price })
+  await delay(500);
   console.log(`${acc2.address} bought token ${webArTokenId}`)
 }
 

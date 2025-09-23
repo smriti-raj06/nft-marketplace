@@ -2,12 +2,18 @@ import { shortenAddress } from '../../utils/format'
 import { chains } from '../../utils/web3'
 import NavItem from './NavItem'
 
-export default function ConnectedAccountAddress ({ account }) {
- // const accountUrl = `${chains.polygonMumbaiTestnet.explorers[0].url}/address/${account}`
+// export default function ConnectedAccountAddress ({ account }) {
+//  // const accountUrl = `${chains.polygonMumbaiTestnet.explorers[0].url}/address/${account}`
   
-//  const accountUrl = 'https://sepolia.etherscan.io/address/${account}'
-//  const accountUrl = `https://www.oklink.com/amoy/address/${account}`
- const accountUrl = `${chains.polygonAmoyTestnet.explorers[0].url}/address/${account}`
+// //  const accountUrl = 'https://sepolia.etherscan.io/address/${account}'
+// //  const accountUrl = `https://www.oklink.com/amoy/address/${account}`
+//  const accountUrl = `${chains.polygonAmoyTestnet.explorers[0].url}/address/${account}`
 
- return <NavItem title={shortenAddress(account)} href={accountUrl} openNewTab={true}/>
+//  return <NavItem title={shortenAddress(account)} href={accountUrl} openNewTab={true}/>
+// }
+export default function ConnectedAccountAddress({ account }) {
+  // Use Sepolia explorer instead of Amoy
+  const accountUrl = `${chains.sepoliaTestnet.explorers[0].url}/address/${account}`
+
+  return <NavItem title={shortenAddress(account)} href={accountUrl} openNewTab={true} />
 }

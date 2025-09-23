@@ -10,10 +10,18 @@
     "node": "hardhat node",
     "deploy:localhost": "hardhat run scripts/deploy.js --network localhost",
     "deploy:mumbai": "hardhat run scripts/deploy.js --network mumbai",
+    "deploy:amoy": "hardhat run scripts/deploy.js --network amoy",
     "setup-marketplace:localhost": "hardhat run scripts/setupMarket.js --network localhost",
     "setup-marketplace:mumbai": "hardhat run scripts/setupMarket.js --network mumbai",
+    "setup-marketplace:amoy": "hardhat run scripts/setupMarket.js --network amoy",
     "setup": "npm run deploy:localhost && npm run setup-marketplace:localhost",
-    "env": "hardhat run scripts/updateVercelEnviromentKeys.js --network mumbai"
+    "env": "hardhat run scripts/updateVercelEnviromentKeys.js --network mumbai",
+    "setup:amoy": "npm run deploy:amoy && npm run setup-marketplace:amoy",
+    "deploy:sepolia": "hardhat run scripts/deploy.js --network sepolia",
+    "setup-marketplace:sepolia": "hardhat run scripts/setupMarket.js --network sepolia",
+    "setup:sepolia": "npm run deploy:sepolia && npm run setup-marketplace:sepolia"
+
+   
   },
   "dependencies": {
     "@emotion/cache": "^11.7.1",

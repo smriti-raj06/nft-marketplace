@@ -16,8 +16,15 @@ const contextDefaultValues = {
   hasWeb3: false
 }
 
+// const networkNames = {
+//   maticmum: 'MUMBAI',
+//   amoy: 'AMOY',   // ✅ Add Amoy support
+//   unknown: 'LOCALHOST'
+// }
 const networkNames = {
   maticmum: 'MUMBAI',
+  amoy: 'AMOY',
+  sepolia: 'SEPOLIA',   // ✅ Add Sepolia
   unknown: 'LOCALHOST'
 }
 
@@ -39,14 +46,16 @@ export default function Web3Provider ({ children }) {
   }, [])
 
   async function initializeWeb3WithoutSigner () {
-    const alchemyProvider = new ethers.providers.AlchemyProvider(80001)
+    const alchemyProvider = new ethers.providers.AlchemyProvider(process.env.NEXT_PUBLIC_NETWORK_ID)
     setHasWeb3(false)
     await getAndSetWeb3ContextWithoutSigner(alchemyProvider)
   }
 
   async function initializeWeb3 () {
     try {
+      console.log(window.ethereum);
       if (!window.ethereum) {
+        console.log('window ethereum');
         await initializeWeb3WithoutSigner()
         return
       }
@@ -70,6 +79,7 @@ export default function Web3Provider ({ children }) {
       connection.on('accountsChanged', onAccountsChanged)
       connection.on('chainChanged', initializeWeb3)
     } catch (error) {
+      console.log("in catch: ", error);
       initializeWeb3WithoutSigner()
       console.log(error)
     }
@@ -99,28 +109,81 @@ export default function Web3Provider ({ children }) {
     setBalance(balanceInEther)
   }
 
+  // async function getAndSetNetwork (provider) {
+  //   const { name: network } = await provider.getNetwork()
+  //   const networkName = networkNames[network]
+  //   setNetwork(networkName)
+  //   return networkName
+  // }
   async function getAndSetNetwork (provider) {
-    const { name: network } = await provider.getNetwork()
-    const networkName = networkNames[network]
-    setNetwork(networkName)
-    return networkName
+  const { chainId } = await provider.getNetwork()
+
+  let networkName
+  if (chainId === 80001) networkName = 'MUMBAI'
+  else if (chainId === 80002) networkName = 'AMOY'
+  else if (chainId === 1337) networkName = 'LOCALHOST'
+  else if (chainId === 11155111) networkName = 'SEPOLIA'
+  else networkName = 'UNKNOWN'
+
+  setNetwork(networkName)
+  return networkName
+}
+
+  // async function setupContracts (signer, networkName) {
+  //   console.log(networkName);
+  //   if (!networkName) {
+  //     setMarketplaceContract(null)
+  //     setNFTContract(null)
+  //     return false
+  //   }
+  //   const { data } = await axios(`/api/addresses?network=${networkName}`)
+  //   console.log(data);
+  //   // const marketplaceContract = new ethers.Contract(data.marketplaceAddress, Market.abi, signer)
+  //   const marketplaceContract = new ethers.Contract(process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS_amoy,Market.abi,signer)
+  //   setMarketplaceContract(marketplaceContract)
+  //   // const nftContract = new ethers.Contract(data.nftAddress, NFT.abi, signer)
+  //   const nftContract = new ethers.Contract(process.env.NEXT_PUBLIC_NFT_ADDRESS_amoy,NFT.abi,signer)
+  //   setNFTContract(nftContract)
+  //   return true
+  // }
+
+   async function setupContracts(signer, networkName) {
+  console.log(networkName);
+  if (!networkName) {
+    setMarketplaceContract(null)
+    setNFTContract(null)
+    return false
   }
 
-  async function setupContracts (signer, networkName) {
-    if (!networkName) {
-      setMarketplaceContract(null)
-      setNFTContract(null)
-      return false
-    }
-    const { data } = await axios(`/api/addresses?network=${networkName}`)
-    // const marketplaceContract = new ethers.Contract(data.marketplaceAddress, Market.abi, signer)
-    const marketplaceContract = new ethers.Contract(process.env.marketplaceaddress,Marketplace.abi,signer)
-    setMarketplaceContract(marketplaceContract)
-    // const nftContract = new ethers.Contract(data.nftAddress, NFT.abi, signer)
-    const nftContract = new ethers.Contract(process.env.nftaddress, NFT.abi,signer)
-    setNFTContract(nftContract)
-    return true
+  let marketplaceAddress
+  let nftAddress
+
+  if (networkName === 'MUMBAI') {
+    marketplaceAddress = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS_MUMBAI
+    nftAddress = process.env.NEXT_PUBLIC_NFT_ADDRESS_MUMBAI
+  } else if (networkName === 'AMOY') {
+    marketplaceAddress = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS_AMOY
+    nftAddress = process.env.NEXT_PUBLIC_NFT_ADDRESS_AMOY
+  } else if (networkName === 'SEPOLIA') {
+    marketplaceAddress = process.env.NEXT_PUBLIC_MARKETPLACE_ADDRESS_SEPOLIA
+    nftAddress = process.env.NEXT_PUBLIC_NFT_ADDRESS_SEPOLIA
+  } else {
+    marketplaceAddress = null
+    nftAddress = null
   }
+
+  if (!marketplaceAddress || !nftAddress) return false
+
+  const marketplaceContract = new ethers.Contract(marketplaceAddress, Market.abi, signer)
+  const nftContract = new ethers.Contract(nftAddress, NFT.abi, signer)
+
+  setMarketplaceContract(marketplaceContract)
+  setNFTContract(nftContract)
+
+  return true
+}
+
+  
 
   return (
     <Web3Context.Provider
